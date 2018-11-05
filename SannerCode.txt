@@ -1,0 +1,121 @@
+package project_scanner;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.*;
+
+public class Project_Scanner {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        String[] Reserved_Words = {"if", "then", "else","end","repeat","until","read","write"};
+        
+        String[] Special_Symbols = {"+","-","*","/","=","<","(",")",";",":="};
+        
+        String[] Special_Words = {"number", "Identifier"};
+        
+       ///////////////////////*Read from file *///////////////////////////
+        
+       try {
+            // reading the code from the file 
+            FileReader fout = new FileReader("D:\\tiny_language.txt") ;
+            int c;
+            String sentence = " ";
+            while ( -1 != (c=fout.read()))
+            {
+                //System.out.print((char)c);
+                char character = (char)c;
+                 
+                // removing the comments
+                if(character == '{')
+                { 
+                    while ( character != '}')
+                    {
+                    c=fout.read();
+                    character = (char)c;
+                    }
+                    c=fout.read();
+                    character = (char)c;
+                 }
+                sentence += character ; 
+            }
+           
+           // System.out.print(sentence);
+       
+        String[] Tokens = sentence.split("\\s+|;|\\r\\n");
+        for (int x=0; x<Tokens.length; x++) 
+        {
+            System.out.println(Tokens[x]);
+        }
+        Map Token_Type=new HashMap();
+        
+        for (int x=0; x<Tokens.length; x++) 
+        {
+            if(Tokens[x]=="  ")
+            {
+                continue;
+            }
+           char buffer;
+                buffer = Tokens[x].charAt(0);
+                
+             System.out.print(buffer);
+           if( buffer > 47 && buffer <58)
+           {
+               Token_Type.put(Tokens[x],"Number");
+           }
+           
+           else if( (buffer > 64 && buffer <91)|| (buffer > 96 && buffer <123) )
+           {
+               boolean found= false;
+               for (String word :Reserved_Words)
+               {
+                   if (Tokens[x]==word)
+                   {
+                     found=true;  
+                    Token_Type.put(Tokens[x],"Reserved_Words");  
+                   }   
+               }
+               if(!found)
+               {
+                   Token_Type.put(Tokens[x],"Identifier");
+               }
+           }
+           else
+           {
+               boolean found= false;
+               for (String symbol :Special_Symbols)
+               {
+                   if (Tokens[x]==symbol)
+                   {
+                     found=true;  
+                    Token_Type.put(Tokens[x],"Special_Symbols");  
+                   }   
+               }
+               if(!found)
+               {
+                   Token_Type.put(Tokens[x],"Not defined");
+               }
+               
+           }        
+        }
+        
+       System.out.println(Token_Type);
+        
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Project_Scanner.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Project_Scanner.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
+        
+        
+        
+
+        
+    }
+    
+}
