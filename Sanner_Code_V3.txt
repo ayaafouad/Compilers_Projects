@@ -1,0 +1,131 @@
+package project_scanner;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.*;
+
+public class Project_Scanner {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        String[] Reserved_Words = {"if", "then", "else","end","repeat","until","read","write"};
+        
+        String[] Special_Symbols = {"+","-","*","/","=","<","(",")",";",":="};
+        
+        String[] Special_Words = {"number", "Identifier"};
+        
+       ///////////////////////*Read from file *///////////////////////////
+        
+       try {
+            // reading the code from the file 
+            FileReader fout = new FileReader("D:\\tiny_language.txt") ;
+            int c;
+            String sentence = " ";
+            while ( -1 != (c=fout.read()))
+            {
+                //System.out.print((char)c);
+                char character = (char)c;
+                 
+                // removing the comments
+                if(character == '{')
+                { 
+                    while ( character != '}')
+                    {
+                    c=fout.read();
+                    character = (char)c;
+                    }
+                    c=fout.read();
+                    character = (char)c;
+                 }
+                sentence += character ; 
+            }
+           
+           // System.out.print(sentence);
+       
+        //String[] Tokens = sentence.split("\\s+|;|\\r\\n");
+       String[] Tokens = sentence.split("\n");
+       String[][] Row_Tokens =new String[Tokens.length][100];
+      for (int i=0; i<Tokens.length; i++)
+       {
+          Row_Tokens[i] = Tokens[i].split("\\s+|;");   
+       }
+      /*for (int x=0; x<Tokens.length; x++) 
+        {
+            for (int y=0; y<Row_Tokens[x].length; y++) 
+            {
+            System.out.println(Row_Tokens[x][y]);
+            }
+        }*/
+      // System.out.println((int)Tokens.length);
+        Map Token_Type=new HashMap();
+       for (int x=0; x<Tokens.length; x++) 
+       {
+        for (int a=0; a<Row_Tokens[x].length; a++) 
+        {
+           /* if(Row_Tokens[a]=="  ")
+            {
+                continue;
+            }*/
+           char buffer;
+           String Buf = Row_Tokens[x][a];
+                buffer = Buf.charAt(0);
+                
+            // System.out.println(buffer);
+             
+           if( buffer > 47 && buffer <58)
+           {
+               Token_Type.put(Row_Tokens[x][a],"Number");
+           }
+           
+           else if( ((int)buffer > 64 &&(int)buffer <91)|| ((int)buffer > 96 && (int)buffer <123) )
+           {
+               boolean found= false;
+               for (String word :Reserved_Words)
+               { 
+                   //System.out.println(word);
+                   //System.out.println(Row_Tokens[x][a]);
+                   if (Row_Tokens[x][a].equalsIgnoreCase(word))
+                   {
+                     found=true;  
+                    Token_Type.put(Row_Tokens[x][a],"Reserved_Words");  
+                   }   
+               }
+               if(!found)
+               {
+                   Token_Type.put(Row_Tokens[x][a],"Identifier");
+               }
+           }
+           else
+           {
+               boolean found= false;
+               for (String symbol :Special_Symbols)
+               {
+                   if (Row_Tokens[x][a].equalsIgnoreCase(symbol))
+                   {
+                     found=true;  
+                    Token_Type.put(Row_Tokens[x][a],"Special_Symbols");  
+                   }   
+               }
+               if(!found)
+               {
+                   Token_Type.put(Row_Tokens[x][a],"Not defined");
+               }
+               
+           }        
+        }
+       }
+       System.out.println(Token_Type);
+        
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Project_Scanner.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Project_Scanner.class.getName()).log(Level.SEVERE, null, ex);
+        }
+      
+    }
+    
+}
