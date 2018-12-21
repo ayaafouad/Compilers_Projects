@@ -1,0 +1,179 @@
+
+package parser;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.*;
+
+/**
+ *
+ * @author Aya Kamal
+ */
+public class Parser  {
+    
+    
+   static String[] Token = {"read","identifier",";","if","number","<","identifier","then","identifier","number",";"};
+   static int index = 0;
+        public static void Program()
+	{
+            stmt_seq();
+	}
+        public static void stmt_seq()
+	{
+           while(index < Token.length)
+           {
+            statement();
+            while (Token[index] == ";")
+            {
+                match(Token[index]);
+                statement();
+            }   
+           }
+	}
+				
+        public static void statement()
+	{
+            if(Token[index] == "if")
+                    if_stmt();
+            if(Token[index] == "repeat")
+                    repeat_stmt();
+            /*if(Token[index+1]== ":=" )
+                    assign_stmt();*/
+            if(Token[index] == "read")
+                    read_stmt();
+            if(Token[index] == "write")
+                    write_stmt();
+	}
+
+	public static void if_stmt()
+	{
+	    match("if");
+	    exp();
+	    match("then");
+            stmt_seq();
+            if(Token[index] == "else")
+            {
+                    match("else");
+                    stmt_seq();
+            }
+            match("end");
+		
+	}
+
+	public static void match(String t)
+	{
+            if (Token[index] == t)
+            {
+                System.out.println(Token[index]);
+                index++ ;
+                
+            }
+            else
+                    error();
+	}
+
+	public static String error()
+	{
+            return "syntax error";
+	}
+        
+        public static void repeat_stmt ()
+	{
+            match("repeat");
+            stmt_seq();
+            match("until");
+            exp();
+	}
+	public static void assign_stmt ()
+	{
+            match("identifier");
+            match(":=");
+            exp();
+	
+	}
+	public static void read_stmt ()
+	{
+            match("read");
+            match("identifier");
+	}
+	public static void write_stmt ()
+	{
+            match("write");
+            exp();
+	}
+        
+        public static void exp()
+	{
+            simple_exp();
+            if(Token[index] == "<" || Token[index] == "=")
+            {
+                comparison_op();
+                simple_exp();
+            }
+	}
+
+	public static void comparison_op()
+	{
+            if(Token[index] == "<" || Token[index] == "=")
+                    match(Token[index]);	
+	}
+
+	public static void simple_exp()
+        {
+            term();
+            while (Token[index] == "+" || Token[index] == "-")
+            {
+                addop();
+                 term();
+            }
+	}
+	public static void addop()
+	{
+            if(Token[index] == "+" || Token[index] == "-")
+                    match(Token[index]);
+	}
+	public static void term()
+	{
+            factor();
+            while (Token[index] == "*" || Token[index] == "/")
+            {
+                mulop();
+                factor();
+            }
+	}
+	public static void mulop()
+	{
+            if(Token[index] == "*" || Token[index] == "/")
+                    match(Token[index]);	
+	}
+	public static void factor()
+	{
+            if(Token[index]=="(")
+            {
+                match("(");
+                exp();
+                match(")");
+            }
+            else if(Token[index]=="number")
+            {
+                match("number");
+            }
+            else if(Token[index]=="identifier")
+            {
+               match("identifier"); 
+            }
+	}
+        public static void main(String[] args)
+        {
+            Program();
+            System.out.println("done baby");
+        }
+    
+}
+    
